@@ -588,8 +588,14 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-function resetGame(silent = false) {
-  if (!silent && !confirm('Reset the board? All scores will be cleared.')) return;
+function resetGame(silent = false, keepSkills = false) {
+  if (!silent && !confirm('Reset the board? All scores and skills will be cleared.')) return;
+  if (!keepSkills) {
+    CHALLENGES.length = 0;
+    document.getElementById('skill-input').value = '';
+    document.getElementById('skill-parse-info').textContent = '';
+    document.getElementById('turn-bar').textContent = 'Paste your skills in the panel → then select a square to begin';
+  }
   buildGrid(); selected = null; scoringTeam = null;
   document.getElementById('entry-area').style.display = 'none';
   document.getElementById('no-sel').style.display = 'block';
@@ -650,7 +656,7 @@ function applySkills() {
   if (parsed.length === 0) { showToast('No skills to apply — paste some first!'); return; }
   CHALLENGES.length = 0;
   parsed.forEach(s => CHALLENGES.push(s));
-  resetGame(true);
+  resetGame(true, true);
   document.getElementById('turn-bar').textContent = 'Select any square to challenge it';
   showToast(`Board updated with ${parsed.length} skills!`);
 }
