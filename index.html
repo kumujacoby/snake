@@ -42,17 +42,14 @@ body { font-family: 'Lexend', sans-serif; background: var(--page-bg); min-height
 
 header {
   background: var(--ks-blue);
-  padding: 12px 28px;
-  display: flex; align-items: center; gap: 14px;
-  border-bottom: 4px solid var(--a-solid);
+  padding: 8px 20px;
+  display: flex; align-items: center; justify-content: flex-end;
+  border-bottom: 3px solid var(--a-solid);
 }
 .ks-logo {
-  width: 44px; height: 44px; background: #fff; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 800; color: var(--ks-blue); flex-shrink: 0;
+  font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.9);
+  letter-spacing: 0.04em;
 }
-.header-title h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
-.header-title p  { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.5); margin-top: 3px; letter-spacing: 0.07em; text-transform: uppercase; }
 
 /* Full-width fluid layout — no max-width cap */
 .main {
@@ -98,7 +95,7 @@ header {
   grid-template-rows: repeat(6, 1fr);
   gap: clamp(4px, 0.5vw, 8px);
   width: 100%;
-  height: calc(100vh - 220px);
+  height: calc(100vh - 190px);
   min-height: 480px;
 }
 
@@ -295,11 +292,7 @@ header {
 <div class="page-bg">
 
 <header>
-  <div class="ks-logo">KS</div>
-  <div class="header-title">
-    <h1>Snake</h1>
-    
-  </div>
+  <div class="ks-logo">Snake</div>
 </header>
 
 <div class="main">
@@ -327,17 +320,13 @@ header {
       </div>
     </div>
 
-    <div class="turn-bar" id="turn-bar">Paste your skills in the panel → then select a square to begin</div>
+
 
     <div class="grid-wrap">
       <div class="grid" id="grid"></div>
     </div>
 
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot a"></div>Blue Team's snake</div>
-      <div class="legend-item"><div class="legend-dot b"></div>Green Team's snake</div>
-      <div class="legend-item"><div class="legend-dot free"></div>Free square</div>
-    </div>
+
   </div>
 
   <div class="side-panel">
@@ -364,13 +353,17 @@ header {
     </div>
 
     <div class="panel-box how-to">
-      <h3>How to Win</h3>
-      <p>
-        Enter a student's IXL SmartScore to claim a square.<br><br>
-        The other team can <strong>flip</strong> any square by scoring <strong>higher</strong>.<br><br>
-        The team with the <strong>longest connected snake</strong> wins — connections go up, down, left, and right.<br><br>
-        Solid squares show each team's current longest snake path.
-      </p>
+      <h3 style="cursor:pointer; user-select:none;" onclick="toggleHowTo()">
+        How to Win <span id="how-to-arrow" style="float:right; opacity:0.5;">▼</span>
+      </h3>
+      <div id="how-to-body" style="display:none">
+        <p>
+          Enter a student's IXL SmartScore to claim a square.<br><br>
+          The other team can <strong>flip</strong> any square by scoring <strong>higher</strong>.<br><br>
+          The team with the <strong>longest connected snake</strong> wins — connections go up, down, left, and right.<br><br>
+          Solid squares show each team's current longest snake path.
+        </p>
+      </div>
     </div>
 
     <div class="panel-box">
@@ -594,7 +587,7 @@ function resetGame(silent = false, keepSkills = false) {
     CHALLENGES.length = 0;
     document.getElementById('skill-input').value = '';
     document.getElementById('skill-parse-info').textContent = '';
-    document.getElementById('turn-bar').textContent = 'Paste your skills in the panel → then select a square to begin';
+    
   }
   buildGrid(); selected = null; scoringTeam = null;
   document.getElementById('entry-area').style.display = 'none';
@@ -606,6 +599,14 @@ function resetGame(silent = false, keepSkills = false) {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && selected !== null) submitScore(); });
+
+function toggleHowTo() {
+  const el = document.getElementById('how-to-body');
+  const arrow = document.getElementById('how-to-arrow');
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▲' : '▼';
+}
 
 function toggleSkillEditor() {
   const el = document.getElementById('skill-editor');
@@ -657,7 +658,7 @@ function applySkills() {
   CHALLENGES.length = 0;
   parsed.forEach(s => CHALLENGES.push(s));
   resetGame(true, true);
-  document.getElementById('turn-bar').textContent = 'Select any square to challenge it';
+  
   showToast(`Board updated with ${parsed.length} skills!`);
 }
 
