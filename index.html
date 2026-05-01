@@ -51,7 +51,6 @@ header {
   letter-spacing: 0.04em;
 }
 
-/* Full-width fluid layout — no max-width cap */
 .main {
   width: 100%;
   padding: 10px 16px 0;
@@ -79,15 +78,7 @@ header {
 .stat .val { font-size: 32px; font-weight: 800; line-height: 1; text-align: center; }
 .stat .lbl { font-size: 10px; font-weight: 500; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.08em; text-align: center; }
 
-.turn-bar {
-  text-align: center; background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1); border-radius: 7px;
-  padding: 6px 14px; font-size: 13px; font-weight: 300;
-  color: rgba(255,255,255,0.65); margin-bottom: 8px;
-}
-.turn-bar strong { color: #fff; font-weight: 700; }
-
-/* GRID — fills viewport height, cells are compact rectangles not squares */
+/* GRID */
 .grid-wrap { width: 100%; }
 .grid {
   display: grid;
@@ -145,6 +136,8 @@ header {
   cursor: default;
 }
 .cell.blank-cell:hover { transform: none; box-shadow: none; }
+
+.cell.free-square {
   background: #fffbef; border: 2px dashed #d4a83a; cursor: default;
 }
 .cell.free-square:hover { transform: none; box-shadow: none; }
@@ -160,17 +153,6 @@ header {
 .cell.free-in-snake-b .cell-name { color: var(--b-dark); }
 
 .cell-star { position: absolute; top: 3px; right: 5px; font-size: clamp(9px, 0.9vw, 14px); font-weight: 800; }
-
-.legend { display: flex; justify-content: center; gap: 20px; margin-top: 6px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.45); }
-.legend-dot { width: 11px; height: 11px; border-radius: 3px; }
-.legend-dot.a    { background: var(--a-solid); }
-.legend-dot.b    { background: var(--b-solid); }
-.legend-dot.free { background: #fffbef; border: 1px dashed #d4a83a; }
-
-.ixl-hint { text-align: center; margin-top: 5px; font-size: 11px; font-weight: 300; color: rgba(255,255,255,0.2); }
-.ixl-hint a { color: #7aaaf8; text-decoration: none; }
-.ixl-hint a:hover { text-decoration: underline; }
 
 /* SIDE PANEL */
 .panel-box {
@@ -251,6 +233,39 @@ header {
 }
 .apply-btn:hover { opacity: 0.85; }
 
+/* TIMER */
+.timer-display {
+  font-size: 52px; font-weight: 800; text-align: center;
+  letter-spacing: -0.02em; color: #fff; line-height: 1;
+  margin: 4px 0 14px; font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+.timer-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.t-start-btn {
+  padding: 10px 6px; border-radius: 8px; border: none;
+  font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+  background: var(--a-solid); color: #fff;
+}
+.t-start-btn.pausing { background: var(--ks-gold-light); }
+.t-start-btn:hover { opacity: 0.85; transform: scale(1.02); }
+.t-reset-btn {
+  padding: 10px 6px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5);
+  border-radius: 8px; font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.t-reset-btn:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.75); }
+.timer-adj { display: flex; gap: 6px; }
+.t-adj-btn {
+  flex: 1; padding: 8px 4px; border-radius: 7px;
+  font-family: 'Lexend', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.65);
+  transition: background 0.12s, color 0.12s;
+}
+.t-adj-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
 /* WINNER */
 .winner-overlay {
   display: none; position: fixed; inset: 0;
@@ -320,16 +335,14 @@ header {
       </div>
     </div>
 
-
-
     <div class="grid-wrap">
       <div class="grid" id="grid"></div>
     </div>
-
-
   </div>
 
   <div class="side-panel">
+
+    <!-- SCORE ENTRY -->
     <div class="panel-box">
       <h3>Score Entry</h3>
       <div id="no-sel" class="no-selection">
@@ -352,6 +365,21 @@ header {
       </div>
     </div>
 
+    <!-- TIMER -->
+    <div class="panel-box">
+      <h3>Timer</h3>
+      <div class="timer-display" id="t-disp">5:00</div>
+      <div class="timer-btns">
+        <button class="t-start-btn" id="t-startstop" onclick="timerStartStop()">Start</button>
+        <button class="t-reset-btn" onclick="timerReset()">Reset</button>
+      </div>
+      <div class="timer-adj">
+        <button class="t-adj-btn" onclick="timerAdj(-1)">−1 min</button>
+        <button class="t-adj-btn" onclick="timerAdj(1)">+1 min</button>
+      </div>
+    </div>
+
+    <!-- HOW TO WIN -->
     <div class="panel-box how-to">
       <h3 style="cursor:pointer; user-select:none;" onclick="toggleHowTo()">
         How to Win <span id="how-to-arrow" style="float:right; opacity:0.5;">▼</span>
@@ -366,6 +394,7 @@ header {
       </div>
     </div>
 
+    <!-- EDIT SKILLS -->
     <div class="panel-box">
       <h3 style="cursor:pointer; user-select:none;" onclick="toggleSkillEditor()">
         Edit Skills <span id="skill-editor-arrow" style="float:right; opacity:0.5;">▲</span>
@@ -401,13 +430,71 @@ const CHALLENGES = [];
 
 const FREE = { code: '★', name: 'Free Square', isFree: true };
 const COLS = 5, ROWS = 6, TOTAL = 30;
-// Center of a 5×6 grid: row index 2 (0-based) = positions 10-14
-// Two center cells of row 2 = col 2 (idx 12) and col 3 (idx 13) ... 
-// Actually visual center: row 2 cols 1-2 (idx 11,12) or row 2-3 cols 2 (idx 12,17)
-// Best "center" for 5×6: row 2 col 2 (idx 12) and row 3 col 2 (idx 17)
 const FREE_POSITIONS = new Set([12, 17]);
 
 let cells = [], selected = null, scoringTeam = null;
+
+// ── TIMER ─────────────────────────────────────────────────────────────
+let tSecs = 300, tRunning = false, tInterval = null;
+
+function timerDisplay() {
+  const m = Math.floor(tSecs / 60), s = tSecs % 60;
+  const el = document.getElementById('t-disp');
+  el.textContent = m + ':' + String(s).padStart(2, '0');
+  if (!tRunning) {
+    el.style.color = '#fff';
+  } else if (tSecs <= 30) {
+    el.style.color = '#e05c5c';
+  } else if (tSecs <= 60) {
+    el.style.color = '#D29642';
+  } else {
+    el.style.color = '#4682F0';
+  }
+}
+
+function timerStartStop() {
+  const btn = document.getElementById('t-startstop');
+  if (!tRunning) {
+    tRunning = true;
+    btn.textContent = 'Pause';
+    btn.classList.add('pausing');
+    tInterval = setInterval(() => {
+      if (tSecs > 0) {
+        tSecs--;
+        timerDisplay();
+      } else {
+        clearInterval(tInterval);
+        tRunning = false;
+        btn.textContent = 'Start';
+        btn.classList.remove('pausing');
+        timerDisplay();
+        showToast("Time's up!");
+      }
+    }, 1000);
+  } else {
+    tRunning = false;
+    clearInterval(tInterval);
+    btn.textContent = 'Start';
+    btn.classList.remove('pausing');
+    timerDisplay();
+  }
+}
+
+function timerReset() {
+  tRunning = false;
+  clearInterval(tInterval);
+  tSecs = 300;
+  const btn = document.getElementById('t-startstop');
+  btn.textContent = 'Start';
+  btn.classList.remove('pausing');
+  timerDisplay();
+}
+
+function timerAdj(mins) {
+  tSecs = Math.max(0, tSecs + mins * 60);
+  timerDisplay();
+}
+// ── END TIMER ─────────────────────────────────────────────────────────
 
 function buildGrid() {
   const positions = [];
@@ -439,9 +526,7 @@ function getNeighbors(id) {
 }
 
 function longestSnake(team) {
-  // A cell is traversable if it's owned by this team OR it's a free square
   const traversable = new Set(cells.filter(c => c.owner === team || c.challenge.isFree).map(c => c.id));
-  // Must start from a team-owned cell (not a free square)
   const starts = new Set(cells.filter(c => c.owner === team).map(c => c.id));
   if (!starts.size) return { len: 0, path: new Set() };
   let bestPath = [];
@@ -582,13 +667,12 @@ function showToast(msg) {
 }
 
 function resetGame(silent = false, keepSkills = false) {
-  if (!silent && !confirm('Reset the board? All scores and skills will be cleared.')) return;
   if (!keepSkills) {
     CHALLENGES.length = 0;
     document.getElementById('skill-input').value = '';
     document.getElementById('skill-parse-info').textContent = '';
-    
   }
+  timerReset();
   buildGrid(); selected = null; scoringTeam = null;
   document.getElementById('entry-area').style.display = 'none';
   document.getElementById('no-sel').style.display = 'block';
@@ -619,8 +703,8 @@ function toggleSkillEditor() {
 
 function populateSkillTextarea() {
   const ta = document.getElementById('skill-input');
-  if (ta.value.trim()) return; // don't overwrite if user already typed
-  if (CHALLENGES.length === 0) return; // nothing to pre-fill
+  if (ta.value.trim()) return;
+  if (CHALLENGES.length === 0) return;
   ta.value = CHALLENGES.map(c => `${c.code} ${c.name}`).join('\n');
   updateParseInfo();
 }
@@ -658,13 +742,14 @@ function applySkills() {
   CHALLENGES.length = 0;
   parsed.forEach(s => CHALLENGES.push(s));
   resetGame(true, true);
-  
   showToast(`Board updated with ${parsed.length} skills!`);
 }
 
 document.getElementById('skill-input').addEventListener('input', updateParseInfo);
 
-buildGrid(); renderGrid();
+buildGrid();
+renderGrid();
+timerDisplay();
 </script>
 </div>
 </body>
